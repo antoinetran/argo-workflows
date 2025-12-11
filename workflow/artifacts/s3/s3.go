@@ -510,7 +510,14 @@ func (s *s3client) PutFile(bucket, key, path string) error {
 		return err
 	}
 
-	_, err = s.minioClient.FPutObject(s.ctx, bucket, key, path, minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts})
+  opts := minio.PutObjectOptions{
+      SendContentMd5:       s.SendContentMd5,
+      ServerSideEncryption: encOpts,
+  }
+  opts.NumThreads = 4
+  // In Byes. This is 100 MiB
+  opts.PartSize = 100 * (1024)**2
+	_, err = s.minioClient.FPutObject(s.ctx, bucket, key, path, minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts}, opts)
 	if err != nil {
 		return err
 	}
