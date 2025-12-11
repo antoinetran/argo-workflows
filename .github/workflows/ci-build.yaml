@@ -5,6 +5,7 @@ on:
       - "main"
       - "release-*"
       - "!release-2.8"
+      - "v3.7.1*"
   pull_request:
     branches:
       - "main"
