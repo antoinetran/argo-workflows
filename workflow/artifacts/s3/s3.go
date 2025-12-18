@@ -8,10 +8,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -501,7 +503,12 @@ func NewS3Client(ctx context.Context, opts S3ClientOpts) (S3Client, error) {
 
 // PutFile puts a single file to a bucket at the specified key
 func (s *s3client) PutFile(bucket, key, path string) error {
-	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("Saving file to s3")
+	// [0, N]
+	nbThread0 := rand.IntN(5)
+	// [1, N+1]
+	nbThread := nbThread0 + 1
+	nbThreadU := uint(nbThread)
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("Saving file to s3 with " + strconv.Itoa(nbThread) + " threads 100MiB multipart")
 	// NOTE: minio will detect proper mime-type based on file extension
 
 	encOpts, err := s.EncryptOpts.buildServerSideEnc(bucket, key)
@@ -510,7 +517,7 @@ func (s *s3client) PutFile(bucket, key, path string) error {
 		return err
 	}
 
-	_, err = s.minioClient.FPutObject(s.ctx, bucket, key, path, minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts, NumThreads: 4, PartSize: 100 * 1024 * 1024})
+	_, err = s.minioClient.FPutObject(s.ctx, bucket, key, path, minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts, NumThreads: nbThreadU, PartSize: 100 * 1024 * 1024})
 	if err != nil {
 		return err
 	}
