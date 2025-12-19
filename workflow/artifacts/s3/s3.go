@@ -516,8 +516,21 @@ func (s *s3client) PutFile(bucket, key, path string) error {
 	if err != nil {
 		return err
 	}
+	opts := minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts}
 
-	_, err = s.minioClient.FPutObject(s.ctx, bucket, key, path, minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts, NumThreads: nbThreadU, PartSize: 100 * 1024 * 1024})
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa before opts.NumThreads: " + strconv.Itoa(int(opts.NumThreads)))
+	opts.NumThreads = nbThreadU
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa now opts.NumThreads: " + strconv.Itoa(int(opts.NumThreads)))
+
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa before opts.PartSize: " + strconv.Itoa(int(opts.PartSize)))
+	opts.PartSize = 100 * 1024 * 1024
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa now opts.PartSize: " + strconv.Itoa(int(opts.PartSize)))
+
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa before opts.ConcurrentStreamParts: " + strconv.FormatBool(opts.ConcurrentStreamParts))
+	opts.ConcurrentStreamParts = true
+	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa now opts.ConcurrentStreamParts: " + strconv.FormatBool(opts.ConcurrentStreamParts))
+
+	_, err = s.minioClient.FPutObject(s.ctx, bucket, key, path, opts)
 	if err != nil {
 		return err
 	}
