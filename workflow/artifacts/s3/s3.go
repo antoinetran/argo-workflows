@@ -504,7 +504,7 @@ func NewS3Client(ctx context.Context, opts S3ClientOpts) (S3Client, error) {
 // PutFile puts a single file to a bucket at the specified key
 func (s *s3client) PutFile(bucket, key, path string) error {
 	// [0, N]
-	nbThread0 := rand.IntN(5)
+	nbThread0 := rand.IntN(7)
 	// [1, N+1]
 	nbThread := nbThread0 + 1
 	nbThreadU := uint(nbThread)
@@ -523,7 +523,7 @@ func (s *s3client) PutFile(bucket, key, path string) error {
 	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa now opts.NumThreads: " + strconv.Itoa(int(opts.NumThreads)))
 
 	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa before opts.PartSize: " + strconv.Itoa(int(opts.PartSize)))
-	opts.PartSize = 100 * 1024 * 1024
+	opts.PartSize = 500 * 1024 * 1024
 	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa now opts.PartSize: " + strconv.Itoa(int(opts.PartSize)))
 
 	log.WithFields(log.Fields{"endpoint": s.Endpoint, "bucket": bucket, "key": key, "path": path}).Info("AAAAAAAAAAAAAAAAAAAaaa before opts.ConcurrentStreamParts: " + strconv.FormatBool(opts.ConcurrentStreamParts))
