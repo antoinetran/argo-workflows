@@ -602,6 +602,8 @@ func (s *s3client) PutFile(bucket, key, path string) error {
 		return err
 	}
 	opts := minio.PutObjectOptions{SendContentMd5: s.SendContentMd5, ServerSideEncryption: encOpts}
+	opts.ConcurrentStreamParts = true
+	log.Infof("ConcurrentStreamParts: %t", opts.ConcurrentStreamParts)
 
 	nbThreads := getFromEnvS3UploadNbThreads()
 	nbThreadsU := uint(nbThreads)
